@@ -29,8 +29,9 @@ def test_parser(code, expected_ast_str):
     lexer = project1_parser.Lexer(code)
     parser = project1_parser.Parser(lexer)
     ast = parser.parse()
-    print("yes", ast)
+    print("Above is the AST^")
     ast_str = ''.join(map(str, ast))
+    #print("yes", ast)
     print(ast_str)
     if ast_str == expected_ast_str:
          print(f"Test passed. AST: {ast}")
@@ -139,6 +140,7 @@ def testWhileStatements():
 
 def main():
     totalPassed = 0
+
     totalPassed += testSimpleStatements()
 
     totalPassed += testIfStatements()

@@ -62,9 +62,12 @@ class Parser:
 
     # function to parse the entire program, expected output
     def parse(self):
+        '''
         ast = []
         ast.append(self.program())
         return ast
+        '''
+        return self.program()
 
     # move to the next token.
     def advance(self):
