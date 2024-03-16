@@ -1,38 +1,52 @@
 # Lexer
 class Lexer:
     def __init__(self, code):
-        self.code = code.strip().replace("\n", " ")
+        self.code = code.strip().replace("\n", " ").replace("\t", "")
+        self.code += "\0"
         self.position = 0
 
     # move the lexer position and identify next possible tokens.
     def get_token(self): #keep adding values until you reach =, or operator and (), then return that
         tokens = list(self.code)
+        print("len of tokens: ", len(tokens))
+        print("tokens list", tokens)
         # tokens = self.code.replace("\n", "")
         string = ""
         non_token = ["(", ")", "=", "+", "/", "*", "-", " ", "<", ">"]
         arith = ["+", "/", "*", "-"]
-        while self.position < (len(tokens)):
-            if tokens[self.position] not in non_token:
+
+
+        while (tokens[self.position] == " ") and (self.position < (len(self.code)-1)): #while loop that skips spaces
+            print("space")
+            self.position += 1
+        print("not space")
+
+        if tokens[self.position] not in non_token:
+            while (tokens[self.position] not in non_token) and (self.position < (len(self.code)-1)):
                 string += tokens[self.position]
                 self.position += 1
                 #return string
-            else:
-                if tokens[self.position] in arith:
-                    self.position += 1
-                    return tokens[self.position - 1]
-                if tokens[self.position] == "=":
-                    if tokens[self.position + 1] == "=":
-                        string += tokens[self.position + 1] + tokens[self.position]
-                        self.position += 2
-                    else:
-                        string += tokens[self.position]
-                        self.position += 1
-                if string == "":
-                    self.position += 1
+        else:
+            if tokens[self.position] in arith:
+                string += tokens[self.position]
+                self.position += 1
+            elif tokens[self.position] == "=":
+                if tokens[self.position + 1] == "=":
+                    string += tokens[self.position + 1] + tokens[self.position]
+                    self.position += 2
                 else:
-                    break
+                    string += tokens[self.position]
+                    self.position += 1
+            # elif tokens[self.position] == " ":
+            #     self.position += 1
+            if string == "":
+                self.position += 1
+            # else:
+            #     break
+
         if string.isdigit():
             string = int(string)
+            print("yo mama")
         return string
 
         #print(tokens)
@@ -67,11 +81,17 @@ class Parser:
         ast.append(self.program())
         return ast
         '''
-        return self.program()
+        # while self.lexer.position < len(self.lexer.code):
+        return str(self.program())
 
     # move to the next token.
     def advance(self):
-        self.current_token = self.lexer.get_token()
+        if self.lexer.position < len(self.lexer.code):
+            self.current_token = self.lexer.get_token()
+        else:
+            print("Nuh uh")
+        print(self.current_token)
+        print(len(self.lexer.code))
         #return self.current_token
         #lexer.position += 1
 
@@ -98,7 +118,7 @@ class Parser:
         self.advance()
         token_3 = self.arithmetic_expression()
 
-        return (token_2, token_1, token_3)
+        return token_2, token_1, token_3
 
     # parse arithmetic experssions
     def arithmetic_expression(self):
@@ -107,7 +127,8 @@ class Parser:
         token_1 = ""
         token_2 = ""
         token_3 = ""
-        while lexer.position < len(lexer.code): #run until end of expression, not end of tokens
+        while self.lexer.position < (len(self.lexer.code)-1): #run until end of expression, not end of tokens. Curr_token = digit, next_token = letter?
+            #print("17")
             if self.current_token not in arith:
                 token_1 = self.current_token
                 self.advance()
@@ -115,7 +136,7 @@ class Parser:
                 self.advance()
                 token_3 = self.current_token
                 self.advance()
-        return (token_2, token_1, token_3)
+        return token_2, token_1, token_3
 
     def term(self):
         pass
