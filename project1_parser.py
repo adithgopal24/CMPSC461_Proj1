@@ -73,8 +73,8 @@ class Parser:
 
     # function to parse the entire program, expected output
     def parse(self):
-        ast = []
-        ast.append(str(self.program()))
+        ast = (str(self.program()))
+        print(ast)
         return ast
 
     # move to the next token.
@@ -84,7 +84,7 @@ class Parser:
     # parse the one or multiple statements
     def program(self): #calls other cases based on first token
         #self.advance()
-        return (self.statement())
+        return self.statement()
 
     # parse if, while, assignment statement.
     def statement(self):
@@ -98,64 +98,36 @@ class Parser:
     # parse assignment statements,expressions
     def assignment(self): #('=', 'x', ('+', 5, 3))
         self.advance()
-        token_1 = self.current_token
-        print(self.current_token)
+        token_1 = self.current_token #assigned var
+        #print(self.current_token)
         self.advance()
-        token_2 = self.current_token #equals sign
+        token_2 = self.current_token # "=" sign
         self.advance()
-        token_3 = self.arithmetic_expression()
+        exp = self.arithmetic_expression() #term
 
-        return token_2, token_1, token_3
+        return token_2, token_1, exp
 
     # parse arithmetic experssions
     def arithmetic_expression(self):
         arith = ["+", "-", "*", "/"]
         all_symbols = ["+", "-", "*", "/", "="]
-        val = ""
-        token_1 = ""
-        token_2 = ""
-        token_3 = ""
-        arith_token_1 = ""
-        arith_token_2 = ""
-        token_counter = 0
-        while self.lexer.position < (len(self.lexer.code)-1): #run until end of expression, not end of tokens. Curr_token = digit, next_token = letter?
-            #check for space, tok_before and after is numOrDigit,
-            if self.lexer.code[self.lexer.position] == " ":
-                if (self.lexer.code[self.lexer.position - 1]) and (self.lexer.code[self.lexer.position + 1]) not in all_symbols: #this represents a new expression
-                    self.expression_counter += 1
-            self.lexer.position += 1
+        return self.term()
+        return self.factor()
 
 
-        if self.expression_counter <= 1: #only one or less expressions in input
-            while token_counter < (len(self.lexer.code)-1):
-                if self.current_token not in arith:
-                    if self.current_token == " ": #account for "space" tokens
-                        self.advance()
-                    else:
-                        token_1 = self.current_token #arith symbol
-                        self.advance()
-                        #token_2 = self.current_token #first value in arith exp
-                        #self.advance()
-                        token_3 = self.current_token #second value in arith exp
-                        self.advance()
-                else: #if token is arithmetic symbol
-                    token_2 = self.current_token
-                    self.advance()
-                token_counter += 1
-            return token_2, token_1, token_3
-
-
-        else: #multiple arith expressions in input
-            if self.lexer.code[self.lexer.position] == " ":
-                if (self.lexer.code[self.lexer.position - 1]) and (self.lexer.code[self.lexer.position + 1]) not in all_symbols:
-                    arith_token_1 = self.lexer.code[self.lexer.position + 1]
-
-
-
-
-
-    def term(self):
-        pass
+    def term(self): #('+', 5, 3)
+        term_ops = ['+', '-']
+        token_1 = ''
+        token_2 = ''
+        token_3 = ''
+        if self.current_token not in term_ops:
+            token_1 = self.current_token
+            self.advance()
+        while self.current_token in term_ops:
+            token_2 = self.current_token
+            self.advance()
+            token_3 = self.current_token
+        return token_2, token_1,token_3
 
     def factor(self):
         pass
@@ -175,8 +147,8 @@ class Parser:
 
 
 # Testing
-lexer = Lexer('xx = 5 + 3')
-#lexer = Lexer('x = 1 y = 2 z = 3 a = x + y + z')
+#lexer = Lexer('xx = 5 + 3')
+lexer = Lexer('x = 1 y = 2 z = 3 a = x + y + z')
 
 #parser = Parser(lexer).parse()
 print(lexer.get_token())
@@ -184,7 +156,7 @@ print(lexer.get_token())
 print(lexer.get_token())
 print(lexer.get_token())
 print(lexer.get_token())
-
+#print(lexer.get_token())
 #print(parser)
 '''
 print(lexer.get_token())
