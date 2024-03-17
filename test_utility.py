@@ -29,7 +29,6 @@ def test_parser(code, expected_ast_str):
     lexer = project1_parser.Lexer(code)
     parser = project1_parser.Parser(lexer)
     ast = parser.parse()
-    print("Above is the AST^")
     ast_str = ''.join(map(str, ast))
     #print("yes", ast)
     print(ast_str)

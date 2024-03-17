@@ -1,51 +1,36 @@
 # Lexer
 class Lexer:
     def __init__(self, code):
-        self.code = code.strip().replace("\n", " ").replace("\t", "")
+        self.code = code
         self.position = 0
+        self.operators_and_delimiters = ["(", ")", "=", "+", "/", "*", "-", " ", "<", ">", "+", "/", "*", "-"]
 
     # move the lexer position and identify next possible tokens.
     def get_token(self): #keep adding values until you reach =, or operator and (), then return that
-        tokens = list(self.code)
-        #print(tokens)
-        string = ""
-        non_token = ["(", ")", "=", "+", "/", "*", "-", " ", "<", ">"]
-        arith = ["+", "/", "*", "-"]
-        comp = "" #for comparison
-        space = " "
+        token_str = ""
         while self.position < (len(self.code)):
-            #print("goes into while loop")
-            if tokens[self.position] == " ":
+            if self.code[self.position].isspace():  # takes care of all white spaces including \t, \n, so no changes of self.code needed in init
+                self.position += 1  # nothing to do for space, move to next pos
+
+            elif self.code[self.position].isdigit():  # is a number
+                while self.position < (len(self.code)) and self.code[self.position].isdigit():
+                    token_str += self.code[self.position]  # collect number in the token_str
+                    self.position += 1
+                return int(token_str)  # number token
+
+            elif self.code[self.position].isalnum():  # is alpha numeric
+                while self.position < (len(self.code)) and self.code[self.position].isalnum():
+                    token_str += self.code[self.position]  # collect alphanumeric chars in the token_str
+                    self.position += 1
+                return token_str  # alphanum token
+
+            elif self.code[self.position] in self.operators_and_delimiters: #non-alphanum symbol
+                token_str = self.code[self.position]
                 self.position += 1
-
-            elif tokens[self.position].isdigit(): #is a number
-                while self.position < (len(self.code)) and tokens[self.position].isdigit():
-                    string += tokens[self.position]
-                    self.position += 1
-                return string
-
-            while tokens[self.position].isalpha(): #is a letter
-                while self.position < (len(self.code)) and tokens[self.position].isalpha():
-                    string += tokens[self.position]
-                    self.position += 1
-                return string
-            while tokens[self.position] in arith:
-                operator = tokens[self.position]
-                self.position += 1
-                return operator
-            while tokens[self.position] == "=":
-                if tokens[self.position + 1] == "=":
-                    comp += tokens[self.position + 1] + tokens[self.position]
-                    self.position += 2
-                    return comp
-                else:
-                    string += tokens[self.position]
-                    self.position += 1
-                    return string
+                return token_str  # operator/delimiter
 
 
-            if string.isdigit():
-                string = int(string)
+        return None
 
 # Parser
 # Input : lexer object
@@ -96,48 +81,57 @@ class Parser:
             return self.assignment()
 
     # parse assignment statements,expressions
-    def assignment(self): #('=', 'x', ('+', 5, 3))
+    def assignment(self):
         self.advance()
         token_1 = self.current_token #assigned var
         #print(self.current_token)
         self.advance()
         token_2 = self.current_token # "=" sign
         self.advance()
-        exp = self.arithmetic_expression() #term
+        exp = self.arithmetic_expression()
 
         return token_2, token_1, exp
 
-    # parse arithmetic experssions
+    # parse arithmetic expressions
     def arithmetic_expression(self):
-        arith = ["+", "-", "*", "/"]
-        all_symbols = ["+", "-", "*", "/", "="]
-        operator = self.current_token #
-        return self.term()
-        return self.factor()
-
+        arith = ["+", "-"]
+        if self.term().isdigit():
+            expr = int(self.term())
+        else:
+            expr = self.term()
+        self.advance()
+        while self.current_token in arith:
+            operator = self.current_token
+            self.advance()
+            if self.current_token.isdigit():
+                val = int(self.current_token)
+            else:
+                val = self.current_token
+            expr = operator, expr, val
+        return expr
 
     def term(self): #('+', 5, 3)
-        term_ops = ['+', '-']
-        token_1 = ''
-        token_2 = ''
-        token_3 = ''
-        if self.current_token not in term_ops:
-            token_1 = self.current_token
+        ops = ['*', '/'] #deal with mult and division
+        factor = self.factor()
+        while self.current_token in ops:
+            operator = self.current_token
             self.advance()
-        while self.current_token in term_ops:
-            token_2 = self.current_token
-            self.advance()
-            token_3 = self.current_token
-        return token_2, token_1,token_3
+            term = operator, factor, self.factor()
+        return factor
+
 
     def factor(self):
         self.current_token = str(self.current_token)
-        if self.current_token.isalpnum():
+        if self.current_token.isalnum(): #is digit or number
+            return self.current_token
+
+        elif self.current_token.isdigit():
             self.advance()
-        elif self.current_token == "(":
+            return int(self.current_token)
+
+        elif self.current_token == "(": #start of paranthesis, will likely utilize PEMDAS
             self.advance()
             arith_expr = self.arithmetic_expression()
-            self.advance()
             return arith_expr
 
 
@@ -154,38 +148,3 @@ class Parser:
 
     def condition(self):
         pass
-
-
-# Testing
-#lexer = Lexer('xx = 5 + 3')
-lexer = Lexer('x = 1 y = 2 z = 3 a = x + y + z')
-
-#parser = Parser(lexer).parse()
-print(lexer.get_token())
-print(lexer.get_token())
-print(lexer.get_token())
-print(lexer.get_token())
-print(lexer.get_token())
-#print(lexer.get_token())
-#print(parser)
-'''
-print(lexer.get_token())
-print(lexer.get_token())
-print(lexer.get_token())
-print(lexer.get_token())
-'''
-#t = (lexer.get_token(), lexer.get_token(), lexer.get_token(), lexer.get_token(), lexer.get_token(), lexer.get_token(), lexer.get_token())
-#print(t)
-#print(code_2.strip())
-'''
-
-test2 = lexer.get_token()
-test3 = lexer.get_token()
-ad = parser.advance()
-print(val_test)
-print(lexer.position)
-print(test2)
-print(test3)
-print(ad)
-print("hello")
-'''
