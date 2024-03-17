@@ -73,13 +73,9 @@ class Parser:
 
     # function to parse the entire program, expected output
     def parse(self):
-        '''
         ast = []
-        ast.append(self.program())
+        ast.append(str(self.program()))
         return ast
-        '''
-        # while self.lexer.position < len(self.lexer.code):
-        return str(self.program())
 
     # move to the next token.
     def advance(self):
@@ -88,17 +84,16 @@ class Parser:
     # parse the one or multiple statements
     def program(self): #calls other cases based on first token
         #self.advance()
+        return (self.statement())
+
+    # parse if, while, assignment statement.
+    def statement(self):
         if self.current_token == "if":
             return self.if_statement()
         elif self.current_token == "while":
             return self.while_loop()
         else:
             return self.assignment()
-
-
-    # parse if, while, assignment statement.
-    def statement(self):
-        pass
 
     # parse assignment statements,expressions
     def assignment(self): #('=', 'x', ('+', 5, 3))
