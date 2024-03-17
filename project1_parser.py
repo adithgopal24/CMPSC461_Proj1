@@ -111,6 +111,7 @@ class Parser:
     def arithmetic_expression(self):
         arith = ["+", "-", "*", "/"]
         all_symbols = ["+", "-", "*", "/", "="]
+        operator = self.current_token #
         return self.term()
         return self.factor()
 
@@ -130,7 +131,16 @@ class Parser:
         return token_2, token_1,token_3
 
     def factor(self):
-        pass
+        self.current_token = str(self.current_token)
+        if self.current_token.isalpnum():
+            self.advance()
+        elif self.current_token == "(":
+            self.advance()
+            arith_expr = self.arithmetic_expression()
+            self.advance()
+            return arith_expr
+
+
 
     # parse if statement, you can handle then and else part here.
     # you also have to check for condition.
