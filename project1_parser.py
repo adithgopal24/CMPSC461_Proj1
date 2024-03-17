@@ -53,13 +53,13 @@ class Lexer:
 class Parser:
     def __init__(self, lexer):
         self.lexer = lexer
-        self.current_token = None
+        self.current_token = lexer.get_token() #change from None to not need an advance() call later
         self.expression_counter = 0
+        self.pass_empty_list = False
 
     # function to parse the entire program, expected output
     def parse(self):
         ast = (str(self.program()))
-        print(ast)
         return ast
 
     # move to the next token.
@@ -68,8 +68,10 @@ class Parser:
 
     # parse the one or multiple statements
     def program(self): #calls other cases based on first token
-        #self.advance()
-        return self.statement()
+        statements = []
+        while self.current_token is not None:
+            statements.append(self.statement()) #append statements until end of self.code
+        return statements
 
     # parse if, while, assignment statement.
     def statement(self):
@@ -82,15 +84,13 @@ class Parser:
 
     # parse assignment statements,expressions
     def assignment(self):
+        left_of_assignment = self.current_token
         self.advance()
-        token_1 = self.current_token #assigned var
-        #print(self.current_token)
-        self.advance()
-        token_2 = self.current_token # "=" sign
+        assignment_oper = self.current_token #operator stored
         self.advance()
         exp = self.arithmetic_expression()
 
-        return token_2, token_1, exp
+        return assignment_oper, left_of_assignment, exp
 
     # parse arithmetic expressions
     def arithmetic_expression(self):
