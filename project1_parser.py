@@ -2,57 +2,51 @@
 class Lexer:
     def __init__(self, code):
         self.code = code.strip().replace("\n", " ").replace("\t", "")
-        #self.code += "dummy"
         self.position = 0
 
     # move the lexer position and identify next possible tokens.
     def get_token(self): #keep adding values until you reach =, or operator and (), then return that
         tokens = list(self.code)
-        #print("len of tokens: ", len(tokens))
-        #print("tokens list", tokens)
-        #print(len(self.code) - 1)
-        # tokens = self.code.replace("\n", "")
+        #print(tokens)
         string = ""
         non_token = ["(", ")", "=", "+", "/", "*", "-", " ", "<", ">"]
         arith = ["+", "/", "*", "-"]
-        #print(tokens[self.position])
-        ''''''
-        #print(tokens[self.position])
+        comp = "" #for comparison
+        space = " "
         while self.position < (len(self.code)):
             #print("goes into while loop")
             if tokens[self.position] == " ":
                 self.position += 1
-                #print("goes in while loop that skips spaces")
 
-            elif tokens[self.position] not in non_token:
-                #while (tokens[self.position] not in non_token) and (self.position < (len(self.code)-1)):
-                string += tokens[self.position]
-                self.position += 1
-                    #return string
-            else:
-                if tokens[self.position] in arith:
+            elif tokens[self.position].isdigit(): #is a number
+                while self.position < (len(self.code)) and tokens[self.position].isdigit():
                     string += tokens[self.position]
                     self.position += 1
-                if tokens[self.position] == "=":
-                    if tokens[self.position + 1] == "=":
-                        string += tokens[self.position + 1] + tokens[self.position]
-                        self.position += 2
-                    else:
-                        string += tokens[self.position]
-                        self.position += 1
-                # elif tokens[self.position] == " ":
-                #     self.position += 1
-                if string == "":
+                return string
+
+            while tokens[self.position].isalpha(): #is a letter
+                while self.position < (len(self.code)) and tokens[self.position].isalpha():
+                    string += tokens[self.position]
                     self.position += 1
+                return string
+            while tokens[self.position] in arith:
+                operator = tokens[self.position]
+                self.position += 1
+                return operator
+            while tokens[self.position] == "=":
+                if tokens[self.position + 1] == "=":
+                    comp += tokens[self.position + 1] + tokens[self.position]
+                    self.position += 2
+                    return comp
+                else:
+                    string += tokens[self.position]
+                    self.position += 1
+                    return string
+
 
             if string.isdigit():
                 string = int(string)
-                print("is digit")
-            #self.position += 1
-        return string
 
-        #print(tokens)
-        #return string
 # Parser
 # Input : lexer object
 # Output: AST program representation.
@@ -90,16 +84,7 @@ class Parser:
     # move to the next token.
     def advance(self):
         self.current_token = self.lexer.get_token()
-        '''
-        if self.lexer.position < len(self.lexer.code):
-            self.current_token = self.lexer.get_token()
-        else:
-            print("Nuh uh")
-        print(self.current_token)
-        print(len(self.lexer.code))
-        #return self.current_token
-        #lexer.position += 1
-        '''
+
     # parse the one or multiple statements
     def program(self): #calls other cases based on first token
         #self.advance()
@@ -117,6 +102,7 @@ class Parser:
 
     # parse assignment statements,expressions
     def assignment(self): #('=', 'x', ('+', 5, 3))
+        self.advance()
         token_1 = self.current_token
         print(self.current_token)
         self.advance()
@@ -194,11 +180,16 @@ class Parser:
 
 
 # Testing
-lexer = Lexer('x = 5 + 3')
+lexer = Lexer('xx = 5 + 3')
 #lexer = Lexer('x = 1 y = 2 z = 3 a = x + y + z')
 
-parser = Parser(lexer).parse()
-#print(lexer.get_token())
+#parser = Parser(lexer).parse()
+print(lexer.get_token())
+print(lexer.get_token())
+print(lexer.get_token())
+print(lexer.get_token())
+print(lexer.get_token())
+
 #print(parser)
 '''
 print(lexer.get_token())
