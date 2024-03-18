@@ -72,7 +72,7 @@ class Parser:
         return ast
 
     # error handler
-    def error(self, msg): #
+    def error(self, msg): #handles all improper/ill-formatted code, which sets self.pass_empty_list to True if found. See line 56.
         self.pass_empty_list = True
         print(msg)
 
