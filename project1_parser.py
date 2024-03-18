@@ -59,7 +59,9 @@ class Parser:
 
     # function to parse the entire program, expected output
     def parse(self):
-        ast = (str(self.program()))
+        ast = self.program()
+        if self.pass_empty_list:
+            return [] #empty list returned if ill-formed program (no code) passed
         return ast
 
     # move to the next token.
@@ -86,6 +88,7 @@ class Parser:
     def assignment(self):
         left_of_assignment = self.current_token
         self.advance()
+
         assignment_oper = self.current_token #operator stored
         self.advance()
         exp = self.arithmetic_expression()
@@ -94,45 +97,32 @@ class Parser:
 
     # parse arithmetic expressions
     def arithmetic_expression(self):
-        arith = ["+", "-"]
-        if self.term().isdigit():
-            expr = int(self.term())
-        else:
-            expr = self.term()
-        self.advance()
-        while self.current_token in arith:
-            operator = self.current_token
+        node = self.term()
+        while self.current_token in ('+', '-'):
+            op = self.current_token
             self.advance()
-            if self.current_token.isdigit():
-                val = int(self.current_token)
-            else:
-                val = self.current_token
-            expr = operator, expr, val
-        return expr
+            node = (op, node, self.term())
+        return node
 
     def term(self): #('+', 5, 3)
-        ops = ['*', '/'] #deal with mult and division
-        factor = self.factor()
-        while self.current_token in ops:
-            operator = self.current_token
+        node = self.factor()
+        while self.current_token in ('*', '/'):
+            op = self.current_token
             self.advance()
-            term = operator, factor, self.factor()
-        return factor
+            node = (op, node, self.factor())
+        return node
 
 
     def factor(self):
-        self.current_token = str(self.current_token)
-        if self.current_token.isalnum(): #is digit or number
-            return self.current_token
-
-        elif self.current_token.isdigit():
+        current_token_str = str(self.current_token)
+        if current_token_str.isdigit():
             self.advance()
             return int(self.current_token)
 
-        elif self.current_token == "(": #start of paranthesis, will likely utilize PEMDAS
+        elif current_token_str == "(": #start of paranthesis, will likely utilize PEMDAS
             self.advance()
-            arith_expr = self.arithmetic_expression()
-            return arith_expr
+            expr = self.arithmetic_expression()
+            return expr
 
 
 
