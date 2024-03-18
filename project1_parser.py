@@ -40,7 +40,7 @@ class Lexer:
 # First and foremost, to successfully complete this project you have to understand
 # the grammar of the language correctly.
 
-# We advise(not forcing you to stick to it) you to complete the following function 
+# We advise(not forcing you to stick to it) you to complete the following function
 # declarations.
 
 # Basic idea is to walk over the program by each statement and emit a AST representation
@@ -118,6 +118,7 @@ class Parser:
         if current_token_str.isdigit():
             self.advance()
             return int(self.current_token)
+            #return self.current_token
 
         elif current_token_str == "(": #start of paranthesis, will likely utilize PEMDAS
             self.advance()
@@ -129,12 +130,34 @@ class Parser:
     # parse if statement, you can handle then and else part here.
     # you also have to check for condition.
     def if_statement(self):
-        pass
+        self.advance #absorb if
+        cond = self.condition()
+
+        self.advance()
+        then_statement = self.statement() #else is optional, so return proper value
+        if self.current_token == 'else':
+            self.advance() # absorbs 'else'
+            else_statement = self.statement() #see line 136
+            return ('if', cond, then_statement, else_statement)
+        return ('if', cond, then_statement)
 
     # implement while statment, check for condition
     # possibly make a call to statement?
     def while_loop(self):
-        pass
+        self.advance() #absorb while
+        while_condition = self.condition()
+        while_body_statements = []
+        self.advance() #ignore do
+        while self.current_token != 'do' and self.current_token != None:
+            statement = self.statement()
+            while_body_statements.append(statement)
+        self.advance()
+        return ('while', while_condition, while_body_statements)
 
     def condition(self):
-        pass
+        #symbols = [('==', '!=', '<', '>', '<=', '>=')]
+        left = self.arithmetic_expression()
+        op = self.current_token
+        self.advance()
+        right = self.arithmetic_expression()
+        return (op, left, right)
