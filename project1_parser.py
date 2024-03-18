@@ -3,17 +3,17 @@ class Lexer:
     def __init__(self, code):
         self.code = code
         self.position = 0
-        self.operators_and_delimiters = ["(", ")", "=", "+", "/", "*", "-", "<", ">", "+", "/", "*", "-"] #deal with non-alphanum characters
+        self.operators_and_delimiters = ["(", ")", "=", "+", "/", "*", "-", "<", ">", "+", "/", "*", "-"]
 
 
-    # move the lexer position and identify next possible self.code.
-    def get_token(self): #keep adding values until you reach =, or operator and (), then return that
+    #returns current token at the current position
+    def get_token(self):
         # arith = ["+", "/", "*", "-"]
         # comp = "" #for comparison
         # space = " "
         token_str = ""
         while self.position < (len(self.code)):
-            if self.code[self.position].isspace(): # takes care of all white spaces including \t, \n
+            if self.code[self.position].isspace(): # takes care of all white spaces, including \t, \n
                 self.position += 1 # nothing to do so absorb the space
 
             elif self.code[self.position].isdigit(): #current char is a number
@@ -24,7 +24,7 @@ class Lexer:
 
             elif self.code[self.position].isalnum(): # is alpha numeric
                 while self.position < (len(self.code)) and self.code[self.position].isalnum():
-                    token_str += self.code[self.position] # collect alphanumeric chars in the token_str
+                    token_str += self.code[self.position] # collect alphanumeric chars in token_str
                     self.position += 1
                 return token_str # return alphanum token
 
@@ -81,7 +81,7 @@ class Parser:
         self.current_token = self.lexer.get_token()
 
     # parse the one or multiple statements
-    def program(self): #calls other cases based on first token
+    def program(self):
         statements = []
         while self.current_token is not None: #while there are additional tokens to handle, not at end of self.code
             statements.append(self.statement())
@@ -98,7 +98,7 @@ class Parser:
 
     # parse assignment statements,expressions
     def assignment(self):
-        left_of_assignment = self.current_token #tokens coming right before the operator
+        left_of_assignment = self.current_token #tokens coming left before the operator
         self.advance()
 
         if self.current_token != '=':
@@ -136,7 +136,7 @@ class Parser:
         elif current_token_str.isalnum():  # alpha numeric, ex: variable name
             self.advance()
             return current_token_str
-        elif current_token_str == '(': #PEMDAS, add expression in between paranthesis
+        elif current_token_str == '(': #Return expression in between paranthesis
             self.advance()
             expr = self.arithmetic_expression()
             if self.current_token != ')':
